@@ -23,7 +23,11 @@ with app.app_context():
     db.session.add_all(authors)
     posts = []
     for n in range(25):
-        post = Post(title='Secret banana', content='This is the content Secret' * 50, category= 'Fiction', summary="Summary Secret" )
+        post = Post(title='Secret banana', 
+                    content='This is the content Secret' * 50, 
+                    category= 'Fiction', 
+                    summary="Summary Secret" 
+                    )
         posts.append(post)
 
     db.session.add_all(posts)

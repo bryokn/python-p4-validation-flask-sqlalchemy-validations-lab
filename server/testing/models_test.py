@@ -17,43 +17,52 @@ class TestAuthor:
 
         with app.app_context():
             # valid name
-            author1 = Author(name = Faker().name(), phone_number = '1231144321')
+            author1 = Author(name=Faker().name(), phone_number='1231144321')
 
             # missing name
             with pytest.raises(ValueError):
-                author2 = Author(name = '', phone_number = '1231144321')
+                author2 = Author(name='', phone_number='1231144321')
 
     def test_requires_unique_name(self):
         '''requires each record to have a unique name.'''
         
         with app.app_context():
-            author_a = Author(name = 'Ben', phone_number = '1231144321')
+            author_a = Author(name='Ben', phone_number='1231144321')
             db.session.add(author_a)
             db.session.commit()
             
             with pytest.raises(ValueError):
-                author_b = Author(name = 'Ben', phone_number = '1231144321')
+                author_b = Author(name='Ben', phone_number='1231144321')
                 
             db.session.query(Author).delete()
             db.session.commit()
 
     def test_requires_ten_digit_phone_number(self):
         '''requires each phone number to be exactly ten digits.'''
-
         with app.app_context():
+            # Create an Author instance with a valid phone number
+            author = Author(name="Jane Author", phone_number="1234567890")
+            db.session.add(author)
+            db.session.commit()
 
-                
+            # Test setting a short phone number
             with pytest.raises(ValueError):
                 LOGGER.info('testing short phone number')
-                author = Author(name="Jane Author", phone_number="3311")
+                author.phone_number = "3311"
 
+            # Test setting a long phone number
             with pytest.raises(ValueError):
                 LOGGER.info("testing long phone number")
-                author2 = Author(name="Jane Author", phone_number="3312212121212121")
-                
+                author.phone_number = "3312212121212121"
+
+            # Test setting a non-digit phone number
             with pytest.raises(ValueError):
                 LOGGER.info("testing non-digit")
-                author3 = Author(name="Jane Author", phone_number="123456789!")
+                author.phone_number = "123456789!"
+
+            # Clean up the database
+            db.session.delete(author)
+            db.session.commit()
 
 class TestPost:
     '''Class Post in models.py'''
@@ -64,7 +73,7 @@ class TestPost:
         with app.app_context():
             with pytest.raises(ValueError):
                 content_string = "HI" * 126
-                post = Post(title = '', content=content_string, category='Non-Fiction')
+                post = Post(title='', content=content_string, category='Non-Fiction')
                 
 
     def test_content_length(self):
@@ -90,12 +99,12 @@ class TestPost:
             
             # valid summary string
             summary_string1 = "T" * 250
-            post1 = Post(title='You Won\'t Believe Why I love programming..', content=content_string, summary= summary_string1, category='Non-Fiction')
+            post1 = Post(title='You Won\'t Believe Why I love programming..', content=content_string, summary=summary_string1, category='Non-Fiction')
             
             # too long
             summary_string2 = "T" * 251
             with pytest.raises(ValueError):
-                post2 = Post(title='Top Reasons Why I love programming..', content=content_string, summary= summary_string2, category='Non-Fiction')
+                post2 = Post(title='Top Reasons Why I love programming..', content=content_string, summary=summary_string2, category='Non-Fiction')
 
 
     def test_category(self):
